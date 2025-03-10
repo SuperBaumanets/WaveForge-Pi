@@ -49,7 +49,6 @@ def intraPulseLinearChirp(fc: float,  # Начальная частота
     fig1, ax1 = plt.subplots(figsize=(12, 4))
     fig2, ax2 = plt.subplots(figsize=(12, 4))
     fig3, ax3 = plt.subplots(figsize=(12, 4))
-    fig4, ax4 = plt.subplots(figsize=(12, 4))
     
     # График формы импульса
     ax1.plot(tx_times[0] * 1e6, tx_signals[0], 'b', lw=1.5)
@@ -72,22 +71,7 @@ def intraPulseLinearChirp(fc: float,  # Начальная частота
     ax3.set(xlabel='Частота (МГц)', ylabel='Мощность (дБ)',
            xlim=((fc - B * 1.2) / 1e6, (fc + B * 1.2) / 1e6))
     
-    # Совмещенные сигналы
-    for t_tx, s_tx in zip(tx_times, tx_signals):
-        ax4.plot(t_tx * 1e3, s_tx, 'navy', label='Передаваемые' if t_tx[0] == 0 else "")
-    for t_rx, s_rx in zip(rx_times, rx_signals):
-        ax4.plot(t_rx * 1e3, s_rx, 'darkred', label='Принятые' if t_rx[0] == t_delay else "")
-    
-    # Вычисление максимального времени для графика
-    max_tx_time = (N_pulses - 1) * T_pri + tau
-    max_rx_time = (N_pulses - 1) * T_pri + t_delay + tau
-    max_time = max(max_tx_time, max_rx_time)
-    ax4.set_xlim(0, max_time * 1e3 * 1.1)
-    ax4.set_title(f'Совмещенные сигналы (Задержка: {t_delay * 1e3:.2f} мс)')
-    ax4.set(xlabel='Время (мс)', ylabel='Амплитуда')
-    ax4.legend(['Передаваемые', 'Принятые'])
-    
-    for ax in [ax1, ax2, ax3, ax4]:
+    for ax in [ax1, ax2, ax3]:
         ax.grid(alpha=0.3)
     
     plt.tight_layout()
