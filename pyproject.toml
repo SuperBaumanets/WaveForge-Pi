@@ -14,10 +14,7 @@ pandas = "^2.2.3"
 pyside6 = "^6.8.2.1"      
 matplotlib = "^3.10.0"
 pyqtgraph = "^0.13.7"
-<<<<<<< HEAD
 scipy = "^1.15.2"
-=======
->>>>>>> 143816e (WIP)
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.1.1"
