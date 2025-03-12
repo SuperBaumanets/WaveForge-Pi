@@ -13,17 +13,7 @@ class MainWindow(QMainWindow):
         
         # Настройка главного окна
         self.setWindowTitle(window_settings["window_title"])
-        self.setGeometry(
-            window_settings["initial_position"][0],
-            window_settings["initial_position"][1],
-            window_settings["initial_size"][0],
-            window_settings["initial_size"][1]
-        )
-        self.setMinimumSize(
-            window_settings["minimum_size"][0],
-            window_settings["minimum_size"][1]
-        )
-        
+        self.setFixedSize(1280, 720)  # Фиксированные размеры 
         # Инициализация вкладок
         self.tabs = QTabWidget()
         self.setCentralWidget(self.tabs)

@@ -1,1 +1,10 @@
 poetry.lock
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.py.class
+*.so
+.Python
+env/
+venv/
