@@ -1,6 +1,7 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QFrame
+from PySide6.QtWidgets import QWidget, QHBoxLayout
 
 from ..widgets.connection import ConnectionPanel, StrimPanel
+from src.config.widgets.connection import connection_panel
 
 class ConnectionTab(QWidget):
     def __init__(self):

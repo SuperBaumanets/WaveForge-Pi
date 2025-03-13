@@ -18,18 +18,21 @@ tab_settings = {
             font: 14px "Segoe UI";
             color: #495057;
             background: #e9ecef;
-            border: 1px solid #dee2e6;
+            border: 2px solid #bdc2c7;
             border-bottom: none;
             border-top-left-radius: 6px;
             border-top-right-radius: 6px;
         }
         QTabBar::tab:selected {
-            background: #fff;
+            background: #A9A9A9;
             color: #0d6efd;
-            border-color: #0d6efd;
+            border: none;
+            border-top: 2px solid #0d6efd;
+            border-right: 2px solid #0d6efd;  
+            border-left: 2px solid #0d6efd;    
         }
         QTabBar::tab:hover {
-            background: #dee2e6;
+            background: #bdc2c7;
         }
     """,
     "document_mode": True,
@@ -40,61 +43,3 @@ tab_settings = {
         {"title": "Анализ\nв частотной области", "widget": "SigFreqTab"}
     ]
 }
-
-connection_panel = """
-    QFrame {
-        background-color: #495FFF;
-        border: none
-        border-radius: 0px;
-        padding: 0px;
-    }    
-    QLabel {
-        color: #fff0ff;
-        font-size: 12px;
-        margin: 0;
-        padding: 0;
-    }
-    QLineEdit, QTextEdit {
-        background-color: #333;
-        color: #fff;
-        border: 1px solid #555;
-        padding: 5px;
-    }
-    QPushButton {
-        background-color: #444;
-        color: #fff;
-        border: 1px solid #555;
-        padding: 5px 10px;
-    }
-    QPushButton:hover {
-        background-color: #555;
-    }
-    QCheckBox {
-        color: #fff;
-    }
-"""
-
-connection_panel_title = """
-    QLabel {
-        color: #ffffff;
-        font-size: 16px;
-        font-weight: bold;
-        margin: 0;
-        padding: 0px;
-        border: none;
-        border-bottom: 2px solid #dee2e6;  
-        border-radius: 0px;
-    }
-"""
-
-status_indicator_connected = "background-color: #00ff00; border-radius: 10px; border: 1px solid #fff;"
-status_indicator_disconnected = "background-color: #ff0000; border-radius: 10px; border: 1px solid #fff;"
-
-strim_panel = """
-    QFrame {
-        background-color: #495057;
-        border: 1px solid #444;
-        border-radius: 5px;
-        padding: 10px;
-    }
-"""
