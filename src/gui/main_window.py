@@ -13,7 +13,8 @@ class MainWindow(QMainWindow):
         
         # Настройка главного окна
         self.setWindowTitle(window_settings["window_title"])
-        self.setFixedSize(1280, 720)  # Фиксированные размеры 
+        self.setFixedSize(1280, 720)  # Фиксированные размеры
+        self.setStyleSheet("background: #A9A9A9;")
         # Инициализация вкладок
         self.tabs = QTabWidget()
         self.setCentralWidget(self.tabs)

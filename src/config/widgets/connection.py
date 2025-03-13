@@ -3,6 +3,7 @@ connection_panel = """
         background-color: #A9A9A9;
         border: none;
         border-radius: 0px;
+        margin: 0;
         padding: 0px;
     }    
     QLabel {
