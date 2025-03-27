@@ -45,6 +45,7 @@ class Sub1Tab2Content(QWidget):
         main_frame.setStyleSheet(main_layout) 
         main_frame_layout = QVBoxLayout(main_frame)
         main_frame_layout.setContentsMargins(0, 0, 0, 0)
+        
         # Создаем скролл-область
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)

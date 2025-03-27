@@ -3,7 +3,7 @@ from PySide6.QtCore import Signal, QObject
 class LogSignals(QObject):
     update_log = Signal(str)
 
-class SubTab1ActionHandler:
+class RunDevMchnActionHandler:
     _signals = LogSignals()
 
     @classmethod
@@ -19,6 +19,11 @@ class SubTab1ActionHandler:
     def run_dynamic_emitting(cls):
         print("Функция: Запуск динамического излучения")
         cls.write_host_log("SubTab1: Запуск динамического излучения")
+
+    @classmethod
+    def run_theory_model(cls):
+        print("Функция: Моделирование теоретического излучения")
+        cls.write_host_log("SubTab1: Моделирование теоретического излучения")
 
     @classmethod
     def stop_emitting(cls):
