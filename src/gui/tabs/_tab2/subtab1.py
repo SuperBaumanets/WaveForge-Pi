@@ -4,7 +4,7 @@ import os
 
 from src.gui.styles.left_panel import subtab
 from src.gui.tabs.styles.subtab import main_layout, sub_layout,sub_explanations, status
-from src.core.tabs.subtab2 import SubTab2ActionHandler
+from src.core.tabs.locatormanager_action import LocatorManagerActionHandler
 
 class Sub1Tab2Button(QPushButton):
     def __init__(self, index, main_window, main_tab_id):
@@ -23,6 +23,9 @@ class Sub1Tab2Button(QPushButton):
 
 class Sub1Tab2Content(QWidget):
     def __init__(self):
+        self.lctrs_avaible = None
+        self.lctr_avaible_handler = LocatorManagerActionHandler("src/resources/data/locators.toml")
+        self.lctr_download_handler = None
         super().__init__()
         self._setup_ui()
     
@@ -96,6 +99,12 @@ class Sub1Tab2Content(QWidget):
         return frame
     
     def _create_avaible_locators_frame(self):
+        self.lctrs_avaible = self.lctr_avaible_handler.get_locators()
+        self.ordered_lctrs = ["Выберите элемент"]
+        for locator in self.lctrs_avaible:
+            if locator != "Выберите элемент" and locator not in self.ordered_lctrs:
+                self.ordered_lctrs.append(locator)
+        
         # Основной контейнер
         frame = QFrame()
         frame.setStyleSheet(sub_layout)
@@ -103,10 +112,12 @@ class Sub1Tab2Content(QWidget):
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(0)
 
+        # Заголовок контейнера
         title_label = QLabel("Список доступных локаторов")
         title_label.setStyleSheet(sub_layout)
         main_layout.addWidget(title_label)
 
+        # Загрузка конфигурации локатора:
         selector_frame = QFrame()
         selector_frame.setStyleSheet(status)
         selector_layout = QHBoxLayout(selector_frame)
@@ -116,13 +127,16 @@ class Sub1Tab2Content(QWidget):
         combo_label = QLabel("Выбрать локатор из списка:")
         combo_label.setStyleSheet(sub_explanations)
 
-        self.locator_combo = QComboBox()
-        self.locator_combo.setStyleSheet(sub_layout)
-        self.locator_combo.addItems([" Выберите элемент", "Локатор 1", "Локатор 2", "Локатор 3"])
-        self.locator_combo.setFixedWidth(500)
+        self.avaible_locator_combo = QComboBox()
+        self.avaible_locator_combo.setStyleSheet(sub_layout)
+        self.avaible_locator_combo.addItems(self.ordered_lctrs)
+        self.avaible_locator_combo.setFixedWidth(500)
+        self.avaible_locator_combo.currentTextChanged.connect(
+            lambda text: self._handle_locator_selection(text, self.lctr_avaible_handler)
+        )
 
         selector_layout.addWidget(combo_label)
-        selector_layout.addWidget(self.locator_combo)
+        selector_layout.addWidget(self.avaible_locator_combo)
         selector_layout.addStretch()
 
         main_layout.addWidget(selector_frame)
@@ -168,10 +182,13 @@ class Sub1Tab2Content(QWidget):
         slct_lctr_label = QLabel("Выбрать локатор из списка:              ")
         slct_lctr_label.setStyleSheet(sub_explanations)
 
-        slct_lctr_combo = QComboBox()
-        slct_lctr_combo.setStyleSheet(sub_layout)
-        slct_lctr_combo.addItems([" Выберите элемент", "Локатор 1", "Локатор 2", "Локатор 3"])
-        slct_lctr_combo.setFixedWidth(450)
+        self.download_lctr_combo = QComboBox()
+        self.download_lctr_combo.setStyleSheet(sub_layout)
+        self.download_lctr_combo.addItems([])
+        self.download_lctr_combo.setFixedWidth(450)
+        self.download_lctr_combo.currentTextChanged.connect(
+            lambda text: self._handle_locator_selection(text, self.lctr_download_handler)
+        )
 
         # Автоматический расчет характеристик локатора
         auto_calc_chrtcs_frame = QFrame()
@@ -190,7 +207,7 @@ class Sub1Tab2Content(QWidget):
         dwnl_cnfg_layout.addWidget(slct_lctr_button)
         dwnl_cnfg_layout.addStretch()
         slct_lctr_layout.addWidget(slct_lctr_label)
-        slct_lctr_layout.addWidget(slct_lctr_combo)
+        slct_lctr_layout.addWidget(self.download_lctr_combo )
         slct_lctr_layout.addStretch()
         auto_calc_chrtcs_layout.addWidget(auto_calc_chrtcs_label)
         auto_calc_chrtcs_layout.addWidget(auto_calc_chrtcs_сheckbox)
@@ -222,11 +239,20 @@ class Sub1Tab2Content(QWidget):
             "Период повторения импульсов, мкс:",
             "Частота повторения импульсов, Гц:",
             "Длительность импульса, мкс:",
+            "Интервал приема:",
+            "Интервал покоя:",
+            "Мощность передатчика в импульсе:",
+            "Средняя мощность передатчика:",
+            "Инструментальная дальность:",
+            "Разрешающая способность:",
+            "Точность:",
             "Количество импульсов, шт:"
         ]
 
-        # Создаем группы элементов
-        for name in parameter_names:
+        parameter_value = self.lctr_avaible_handler.read_locator_characteristics()
+
+        self.edit_widgets = []
+        for idx, name in enumerate(parameter_names):
             group_frame = QFrame()
             group_frame.setStyleSheet(status)
             group_layout = QHBoxLayout(group_frame)
@@ -235,12 +261,19 @@ class Sub1Tab2Content(QWidget):
             label = QLabel(name)
             label.setStyleSheet(sub_explanations)
             edit = QLineEdit()
+
+            if idx < len(parameter_value):
+                value = parameter_value[idx]
+                edit.setText(str(value) if value is not None else "")
+
             edit.setStyleSheet(sub_layout)
             edit.setFixedSize(200, 30)
 
             group_layout.addWidget(label)
             group_layout.addWidget(edit)
             lctr_chrtcs_layout.addWidget(group_frame)
+
+            self.edit_widgets.append(edit)
 
         lctr_chrtcs_layout.addStretch()
 
@@ -262,6 +295,7 @@ class Sub1Tab2Content(QWidget):
         add_lctr_label.setStyleSheet(sub_explanations)
 
         add_button = QPushButton("Добавить")
+        add_button.clicked.connect(self._add_locator)
         add_button.setFixedSize(200, 30)
 
         # Удаление локатора
@@ -269,6 +303,7 @@ class Sub1Tab2Content(QWidget):
         del_lctr_label.setStyleSheet(sub_explanations)
 
         del_button = QPushButton("Удалить")
+        del_button.clicked.connect(self._delete_locator)
         del_button.setFixedSize(200, 30)
 
         lctr_cntrl_layout.addWidget(title_frame)
@@ -298,4 +333,68 @@ class Sub1Tab2Content(QWidget):
         
         if file_path:
             self.selected_file = os.path.normpath(file_path)
-            print(f"Выбран файл: {self.selected_file}")
+            self.lctr_download_handler = LocatorManagerActionHandler(self.selected_file)
+            lctrs_download = self.lctr_download_handler.get_locators()
+            ordered_lctrs = ["Выберите элемент"]
+            for locator in lctrs_download:
+                if locator != "Выберите элемент" and locator not in ordered_lctrs:
+                    ordered_lctrs.append(locator)
+                self.download_lctr_combo.addItems(ordered_lctrs)
+
+    def _handle_locator_selection(self, selected_text: str, lctr_handler: LocatorManagerActionHandler):
+        if selected_text != "Выберите элемент":
+            lctr_handler.write_locator_characteristics(selected_text)
+            self._write_characteristics_fields(lctr_handler)
+        else:
+            self._clear_characteristics_fields()
+
+    def _write_characteristics_fields(self, lctr_handler: LocatorManagerActionHandler):
+        parameter_value = lctr_handler.read_locator_characteristics()
+
+        for idx, edit in enumerate(self.edit_widgets):
+            if idx < len(parameter_value):
+                value = parameter_value[idx]
+                edit.setText(str(value) if value is not None else "")
+    
+    def _clear_characteristics_fields(self):
+        parameter_value = [None]*14
+
+        for idx, edit in enumerate(self.edit_widgets):
+            if idx < len(parameter_value):
+                value = parameter_value[idx]
+                edit.setText(str(value) if value is not None else "")
+
+    def _add_locator(self):
+        previous_locators = set(self.lctr_avaible_handler.get_locators())
+
+        self.lctr_avaible_handler.add_locator()
+
+        new_locators = set(self.lctr_avaible_handler.get_locators())
+
+        added_locators = new_locators - previous_locators
+
+        for locator in added_locators:
+            if locator != "Выберите элемент":
+                self.ordered_lctrs.append(locator)
+
+        self.avaible_locator_combo.clear()
+        self.avaible_locator_combo.addItems(self.ordered_lctrs)
+        self.avaible_locator_combo.setCurrentIndex(0)
+
+    def _delete_locator(self):
+        self.avaible_locator_combo.clear()
+
+        self.lctr_avaible_handler.delete_locator()
+
+        new_locators = self.lctr_avaible_handler.get_locators()
+
+        ordered_lctrs = ["Выберите элемент"]
+        seen = {"Выберите элемент"}
+
+        for locator in new_locators:
+            if locator not in seen and locator != "Выберите элемент":
+                ordered_lctrs.append(locator)
+                seen.add(locator)
+
+        self.avaible_locator_combo.addItems(ordered_lctrs)
+        self.avaible_locator_combo.setCurrentIndex(0)

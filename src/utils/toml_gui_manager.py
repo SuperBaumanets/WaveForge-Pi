@@ -30,7 +30,7 @@ class TomlManager:
         table = self.data.get(table_name)
         return table.get(field) if table else None
 
-    def write_fields(self, table_name: str, fields: Dict):
+    def write_all_fields(self, table_name: str, fields: Dict):
         # Записывает/обновляет поля в таблице
         if table_name not in self.data:
             self.data[table_name] = {}
