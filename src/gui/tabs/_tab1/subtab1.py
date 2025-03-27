@@ -4,7 +4,7 @@ from datetime import datetime
 
 from src.gui.styles.left_panel import subtab
 from src.gui.tabs.styles.subtab import main_layout, sub_layout,sub_explanations
-from src.core.tabs.subtab1 import SubTab1ActionHandler
+from src.core.tabs.devmachine_action import RunDevMchnActionHandler
 
 class Sub1Tab1Button(QPushButton):
     def __init__(self, index, main_window, main_tab_id):
@@ -59,7 +59,7 @@ class Sub1Tab1Content(QWidget):
         scroll_layout.setContentsMargins(0, 0, 0, 0)
         
         # Добавляем дочерние элементы в скролл
-        launch_modes_frame = self._create_launch_modes_frame()
+        launch_modes_frame = self._add_sublayouts()
         scroll_layout.addWidget(launch_modes_frame)
         scroll_layout.addStretch()
         
@@ -72,7 +72,7 @@ class Sub1Tab1Content(QWidget):
         return main
     
 
-    def _create_launch_modes_frame(self):
+    def _add_sublayouts(self):
         # Создаем контейнер с контентом
         frame = QFrame()
         frame.setStyleSheet(sub_layout)
@@ -81,27 +81,35 @@ class Sub1Tab1Content(QWidget):
         label_title = QLabel("Режимы запуска модели")
         label_title.setStyleSheet(sub_layout)
         layout.addWidget(label_title)
-
-        static_block = self._create_loading(
+    
+        static_load = self._create_loading(
             "Режим статической загрузки",
             "Код фиксирован, а все параметры жестко заданы на этапе компиляции.",
             "Запустить излучение", 
-            SubTab1ActionHandler.run_static_emitting
+            RunDevMchnActionHandler.run_static_emitting
         )
-        layout.addWidget(static_block)
+        layout.addWidget(static_load)
 
-        dynamic_block = self._create_loading(
+        dynamic_load = self._create_loading(
             "Режим динамической загрузки", 
             "Код загружается с поддержкой протокола XCP (Universal Measurement and Calibration Protocol),\n что позволяет изменять параметры излучаемого сигнала в реальном времени.",
             "Запустить излучение",
-            SubTab1ActionHandler.run_dynamic_emitting
+            RunDevMchnActionHandler.run_dynamic_emitting
         )
-        layout.addWidget(dynamic_block)
+        layout.addWidget(dynamic_load)
 
         stop_button = QPushButton("Остановить излучение")
-        stop_button.clicked.connect(SubTab1ActionHandler.stop_emitting)
+        stop_button.clicked.connect(RunDevMchnActionHandler.stop_emitting)
         stop_button.setFixedSize(200, 30)
         layout.addWidget(stop_button)
+
+        theory_load = self._create_loading(
+            "Режим теоретического моделирования сигнала", 
+            "Полностью виртуальная симуляция сигналов, отсутствует излучение в окружающую среду.",
+            "Запустить моделирование",
+            RunDevMchnActionHandler.run_theory_model
+        )
+        layout.addWidget(theory_load)
 
         layout.addWidget(self._create_info())
 
@@ -117,7 +125,7 @@ class Sub1Tab1Content(QWidget):
         loading_explanations = QLabel(explanations)
         loading_explanations.setStyleSheet(sub_explanations)
         loading_button = QPushButton(button)
-        loading_button.setFixedSize(200, 30)
+        loading_button.setFixedSize(250, 30)
         loading_button.clicked.connect(function)
 
         loading_layout.addWidget(loading_title)
@@ -138,7 +146,7 @@ class Sub1Tab1Content(QWidget):
         self.log_output.setReadOnly(True)
 
         # Подключение сигнала обновления лога
-        SubTab1ActionHandler.connect_log_signal(self.append_to_log)
+        RunDevMchnActionHandler.connect_log_signal(self.append_to_log)
 
         log_text = QLabel("Информация о процессах:")
         log_text.setStyleSheet(sub_layout)
