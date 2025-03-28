@@ -1,13 +1,15 @@
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout,
     QHBoxLayout, QPushButton, QLineEdit,
-    QMessageBox, QFrame, QLabel, QScrollArea
+    QMessageBox, QFrame, QLabel, QScrollArea, QCheckBox, QComboBox
 )
 
 from src.gui.styles.left_panel import subtab
 from src.gui.tabs.styles.subtab import main_layout, sub_layout, sub_explanations, status
 
 from src.gui.plot import MeasurementPlot
+from src.core.tabs.devmachine_action import RunDevMchnActionHandler
+from src.core.tabs.signalfrequency_action import LocatorManagerActionHandler
 
 class Sub1Tab4Button(QPushButton):
     def __init__(self, index, main_window, main_tab_id):
@@ -26,8 +28,12 @@ class Sub1Tab4Button(QPushButton):
 
 class Sub1Tab4Content(QWidget):
     def __init__(self):
+        self.locator_manager = LocatorManagerActionHandler()
         super().__init__()
         self._setup_ui()
+        RunDevMchnActionHandler.connect_plot_fft(self.update_plot)
+        self._connect_settings()
+        self._load_initial_settings()
     
     def _setup_ui(self):
         self.setObjectName("container")
@@ -63,7 +69,7 @@ class Sub1Tab4Content(QWidget):
         scroll_layout.setContentsMargins(0, 0, 0, 0)
         
         # Добавляем дочерние элементы в скролл
-        control_panel = self._create_control_panel()
+        control_panel = self._add_sublayouts()
         scroll_layout.addWidget(control_panel)
         
         # Настраиваем скролл
@@ -73,22 +79,36 @@ class Sub1Tab4Content(QWidget):
         # Добавляем основной контейнер в главный layout
         main.addWidget(main_frame)
         return main
-
-    def _create_control_panel(self):
+    
+    def _add_sublayouts(self):
+        # Главный фрейм
         frame = QFrame()
         frame.setStyleSheet(sub_layout)
         layout = QVBoxLayout(frame)
 
-        content_widget = QWidget()
-        content_layout = QHBoxLayout(content_widget)
-        content_layout.setContentsMargins(0, 0, 0, 0)
-        content_layout.setSpacing(0)
+        # Контейнер для Горизонтальных
+        h_frame = QFrame()
+        h_frame.setStyleSheet(status)
+        h_layout = QHBoxLayout(h_frame)
+        h_layout.setContentsMargins(0, 0, 0, 0)
+        h_layout.setSpacing(0)
 
-        cursor_control_frame = QFrame()
-        cursor_control_frame.setStyleSheet(sub_layout)
-        cursor_control_layout = QVBoxLayout(cursor_control_frame)
-        cursor_control_layout.setContentsMargins(0, 0, 0, 0)
-        cursor_control_layout.setSpacing(0)
+        # Горизонтально
+        h_layout.addWidget(self._create_control_panel())
+        h_layout.addWidget(self._create_plot_frame())
+
+        # Вертикально
+        layout.addWidget(h_frame)
+        layout.addWidget(self._create_settings_Fourier_frame())
+
+        return frame
+
+    def _create_control_panel(self):   
+        frame = QFrame()
+        frame.setStyleSheet(sub_layout)
+        main_layout = QVBoxLayout(frame)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(0)
 
         control_panel_title = QLabel("Управление курсорами")
         control_panel_title.setStyleSheet(sub_layout)
@@ -156,23 +176,26 @@ class Sub1Tab4Content(QWidget):
             edit.setReadOnly(True)
             edit.setStyleSheet(sub_layout)
 
-        cursor_control_layout.addWidget(control_panel_title)
-        cursor_control_layout.addWidget(self.btn_add_v)
-        cursor_control_layout.addWidget(self.btn_clear_v)
-        cursor_control_layout.addLayout(vLine1_edit_layout)
-        cursor_control_layout.addLayout(vLine2_edit_layout)
-        cursor_control_layout.addLayout(deltaX_edit_layout)
-        cursor_control_layout.addWidget(self.btn_add_h)
-        cursor_control_layout.addWidget(self.btn_clear_h)
-        cursor_control_layout.addLayout(hLine1_edit_layout)
-        cursor_control_layout.addLayout(hLine2_edit_layout)
-        cursor_control_layout.addLayout(deltaY_edit_layout)
-        cursor_control_layout.addStretch()
+        main_layout.addWidget(control_panel_title)
+        main_layout.addWidget(self.btn_add_v)
+        main_layout.addWidget(self.btn_clear_v)
+        main_layout.addLayout(vLine1_edit_layout)
+        main_layout.addLayout(vLine2_edit_layout)
+        main_layout.addLayout(deltaX_edit_layout)
+        main_layout.addWidget(self.btn_add_h)
+        main_layout.addWidget(self.btn_clear_h)
+        main_layout.addLayout(hLine1_edit_layout)
+        main_layout.addLayout(hLine2_edit_layout)
+        main_layout.addLayout(deltaY_edit_layout)
+        main_layout.addStretch()
 
+        return frame
+    
+    def _create_plot_frame(self):
+        frame = QFrame()
+        frame.setStyleSheet(sub_layout)
 
-        plot_frame = QFrame()
-        plot_frame.setStyleSheet(sub_layout)
-        plot_layout = QVBoxLayout(plot_frame)
+        plot_layout = QVBoxLayout(frame)
         plot_layout.setContentsMargins(0, 0, 0, 0)
         plot_layout.setSpacing(15)
 
@@ -182,11 +205,68 @@ class Sub1Tab4Content(QWidget):
         self.plot = MeasurementPlot()
         self.plot.setFixedHeight(460)  
         self.plot.setFixedWidth(750)
+
+        plot_layout.addWidget(plot_title)
         plot_layout.addWidget(self.plot)
-        
-        content_layout.addWidget(cursor_control_frame)
-        content_layout.addWidget(plot_frame)
-        layout.addWidget(content_widget)
+        plot_layout.addStretch()
+
+        return frame
+
+    def _create_settings_Fourier_frame(self):
+        # Основной контейнер
+        frame = QFrame()
+        frame.setStyleSheet(sub_layout)
+        frame.setFixedSize(420, 120)
+        main_layout = QVBoxLayout(frame)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(0)
+
+        # Заголовок контейнера
+        title_frame = QLabel("Настройки преобразования Фурье")
+        title_frame.setStyleSheet(sub_layout)
+        main_layout.addWidget(title_frame)
+
+        # Размер окна БПФ:
+        n_fft_frame = QFrame()
+        n_fft_frame.setStyleSheet(status)
+        n_fft_layout = QHBoxLayout(n_fft_frame)
+        n_fft_layout.setContentsMargins(0, 0, 0, 0)
+        n_fft_layout.setSpacing(0)
+
+        n_fft_label = QLabel("Размер окна БПФ:                   ")
+        n_fft_label.setStyleSheet(sub_explanations)
+
+        self.n_fft_edit = QLineEdit()
+        self.n_fft_edit.setStyleSheet(sub_layout)
+        self.n_fft_edit.setFixedSize(200, 30)
+
+        # Выбор локатора из списка:
+        window_frame = QFrame()
+        window_frame.setStyleSheet(status)
+        window_layout = QHBoxLayout(window_frame)
+        window_layout.setContentsMargins(0, 0, 0, 0)
+        window_layout.setSpacing(0)
+
+        window_label = QLabel("Выбрать локатор из списка:              ")
+        window_label.setStyleSheet(sub_explanations)
+
+        self.window_combo = QComboBox()
+        self.window_combo.setStyleSheet(sub_layout)
+        self.window_combo.addItems([])
+        self.window_combo.setFixedWidth(200)
+        self.window_combo.addItems(['none', 'hann', 'hamming', 'blackman'])
+
+
+        n_fft_layout.addWidget(n_fft_label)
+        n_fft_layout.addWidget(self.n_fft_edit)
+        n_fft_layout.addStretch()
+        window_layout.addWidget(window_label)
+        window_layout.addWidget(self.window_combo)
+        window_layout.addStretch()
+
+        main_layout.addWidget(n_fft_frame)
+        main_layout.addWidget(window_frame)
+        main_layout.addStretch()
 
         return frame
     
@@ -240,3 +320,32 @@ class Sub1Tab4Content(QWidget):
             self.hLine1_edit.clear()
             self.hLine2_edit.clear()
             self.deltaY_edit.clear()
+
+    def update_plot(self, x_data, y_data):
+        self.plot.clear_plot_data()
+        self.plot.append_plot_data(x_data, y_data)
+
+    def _load_initial_settings(self):
+        """Загрузка начальных настроек при инициализации"""
+        settings = self.locator_manager.read_plot_settings()
+        self.n_fft_edit.setText(str(settings.get('n_fft')))
+        self.window_combo.setCurrentText('window')
+
+    def _connect_settings(self):
+        """Подключение сигналов для автоматического обновления"""
+        self.n_fft_edit.textChanged.connect(self._handle_settings_change)
+        self.window_combo.currentTextChanged.connect(self._handle_settings_change)
+
+    def _handle_settings_change(self):
+        """Обработчик изменений настроек"""
+        window = self.window_combo.currentText()
+        window = None if window == 'none' else window
+
+        success = self.locator_manager.write_plot_settings({
+            "n_fft": self.n_fft_edit.text(),
+            "window": window
+        })
+
+        if success and RunDevMchnActionHandler._is_model_run:
+            RunDevMchnActionHandler._update_spectrum()
+            

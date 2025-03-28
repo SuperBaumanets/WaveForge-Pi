@@ -8,6 +8,7 @@ from src.gui.styles.left_panel import subtab
 from src.gui.tabs.styles.subtab import main_layout, sub_layout, sub_explanations, status
 
 from src.gui.plot import MeasurementPlot
+from src.core.tabs.devmachine_action import RunDevMchnActionHandler
 
 class Sub1Tab3Button(QPushButton):
     def __init__(self, index, main_window, main_tab_id):
@@ -19,6 +20,7 @@ class Sub1Tab3Button(QPushButton):
         self.setStyleSheet(subtab)
         self.setContentsMargins(0, 0, 0, 0)
         self.clicked.connect(self.show_content)
+
     
     def show_content(self):
         self.main_window.set_active_subtab(self)
@@ -28,6 +30,7 @@ class Sub1Tab3Content(QWidget):
     def __init__(self):
         super().__init__()
         self._setup_ui()
+        RunDevMchnActionHandler.connect_plot_signal(self.update_plot)
     
     def _setup_ui(self):
         self.setObjectName("container")
@@ -221,9 +224,9 @@ class Sub1Tab3Content(QWidget):
         if len(self.plot.v_lines) == 2:
             v1 = min(line.value() for line in self.plot.v_lines)
             v2 = max(line.value() for line in self.plot.v_lines)
-            self.vLine1_edit.setText(f"{v1:.3f}")
-            self.vLine2_edit.setText(f"{v2:.3f}")
-            self.deltaX_edit.setText(f"{abs(v2 - v1):.3f}")
+            self.vLine1_edit.setText(f"{v1 * 1e3:.3f}")
+            self.vLine2_edit.setText(f"{v2 * 1e3:.3f}")
+            self.deltaX_edit.setText(f"{abs(v2 - v1) * 1e3:.3f}")
         else:
             self.vLine1_edit.clear()
             self.vLine2_edit.clear()
@@ -240,3 +243,7 @@ class Sub1Tab3Content(QWidget):
             self.hLine1_edit.clear()
             self.hLine2_edit.clear()
             self.deltaY_edit.clear()
+    
+    def update_plot(self, x_data, y_data):
+        self.plot.clear_plot_data()
+        self.plot.append_plot_data(x_data, y_data)
