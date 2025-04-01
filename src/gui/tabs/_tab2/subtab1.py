@@ -28,6 +28,7 @@ class Sub1Tab2Content(QWidget):
         self.lctr_download_handler = None
         super().__init__()
         self._setup_ui()
+        self._connect_settings()
     
     def _setup_ui(self):
         self.setObjectName("container")
@@ -232,7 +233,7 @@ class Sub1Tab2Content(QWidget):
         title_frame.setStyleSheet(sub_layout)
         lctr_chrtcs_layout.addWidget(title_frame)
 
-        parameter_names = [
+        self.parameter_names = [
             "Название локатора:",
             "Тип сигнала:",
             "Рабочий диапазон частот, Гц:",
@@ -252,7 +253,7 @@ class Sub1Tab2Content(QWidget):
         parameter_value = self.lctr_avaible_handler.read_locator_characteristics()
 
         self.edit_widgets = []
-        for idx, name in enumerate(parameter_names):
+        for idx, name in enumerate(self.parameter_names):
             group_frame = QFrame()
             group_frame.setStyleSheet(status)
             group_layout = QHBoxLayout(group_frame)
@@ -398,3 +399,45 @@ class Sub1Tab2Content(QWidget):
 
         self.avaible_locator_combo.addItems(ordered_lctrs)
         self.avaible_locator_combo.setCurrentIndex(0)
+
+    def _connect_settings(self):
+        """Подключение сигналов для автоматического обновления всех настроек"""
+        for edit in self.edit_widgets:
+            edit.textChanged.connect(self._handle_settings_change)
+
+    def _handle_settings_change(self):
+        """Обработчик изменений параметров локатора"""
+        # Сопоставление подписей полей с именами параметров модели
+        field_mapping = {
+            "Название локатора:": "locator",
+            "Тип сигнала:": "signal",
+            "Рабочий диапазон частот, Гц:": "frequency_range",
+            "Период повторения импульсов, мкс:": "pulse_repetition_period",
+            "Частота повторения импульсов, Гц:": "pulse_repetition_frequency",
+            "Длительность импульса, с:": "pulse_duration",
+            "Интервал приема, c:": "reception_interval",
+            "Интервал покоя, c:": "rest_interval",
+            "Мощность передатчика в импульсе, Вт:": "transmitter_pulse_power",
+            "Средняя мощность передатчика, Вт:": "average_transmitter_power",
+            "Инструментальная дальность, м:": "instrumental_range",
+            "Разрешающая способность, м:": "resolution",
+            "Точность, м:": "accuracy",
+            "Количество импульсов, шт:": "number_pulse"
+        }
+
+        settings_data = {}
+
+        for idx, (name, edit) in enumerate(zip(self.parameter_names, self.edit_widgets)):
+            field_name = field_mapping.get(name)
+            if not field_name:
+                continue
+            value = edit.text()
+
+            if field_name in ["locator", "signal"]:
+                converted_value = str(value)
+            else:
+                converted_value = float(value) if value else 0.0
+
+            settings_data[field_name] = converted_value
+
+        self.lctr_avaible_handler.update_locator_characteristics(settings_data)
