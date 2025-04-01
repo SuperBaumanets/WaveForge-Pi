@@ -87,7 +87,7 @@ class SignalGenerator:
     def _generate_pulses(self):
         """Генерация последовательности импульсов"""
         tx_times, tx_signals = [], []
-        for n in range(self.N_pulses):
+        for n in range(int(self.N_pulses)):
             start_time = n * self.T_pri
             t, s = self._generate_pulse_segment(start_time)
             tx_times.append(t)

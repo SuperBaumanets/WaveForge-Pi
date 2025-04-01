@@ -72,7 +72,6 @@ class RunDevMchnActionHandler:
 
     @classmethod
     def _update_spectrum(cls):
-        print("Work")
         """Обновление спектра с текущими настройками"""
         if cls._is_model_run and cls._last_generator:
             try:

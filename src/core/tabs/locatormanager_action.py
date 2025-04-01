@@ -31,6 +31,20 @@ class LocatorManagerActionHandler:
         except Exception as e:
             print(f"Ошибка загрузки: {str(e)}")
             return False
+    
+    def update_locator_characteristics(self, settings_data: dict)-> bool:
+        """Обновление характеристик локатора"""
+        try:    
+            locator.update_settings(settings_data)
+            return True
+        except ValidationError as e:
+            error_msg = f"Ошибка валидации настроек: {str(e)}"
+            print(error_msg)
+            return False
+        except Exception as e:
+            error_msg = f"Ошибка обновления: {str(e)}"
+            print(error_msg)
+            return False
 
     def read_locator_characteristics(self) -> dict:
         """Возвращает характеристики в виде словаря"""
