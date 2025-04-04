@@ -1,5 +1,5 @@
 from pydantic import ValidationError
-from src.utils.toml_gui_manager import TomlManager
+from src.manager.toml_gui_manager import TomlManager
 from src.core.settings.locator import locator
 
 

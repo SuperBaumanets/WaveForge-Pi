@@ -4,7 +4,7 @@ from datetime import datetime
 
 from src.gui.styles.left_panel import subtab
 from src.gui.tabs.styles.subtab import main_layout, sub_layout,sub_explanations, status
-from src.core.tabs.subtab2 import SubTab2ActionHandler
+from src.core.actions.subtab2 import SubTab2ActionHandler
 
 class Sub2Tab1Button(QPushButton):
     def __init__(self, index, main_window, main_tab_id):

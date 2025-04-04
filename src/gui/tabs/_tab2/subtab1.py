@@ -4,7 +4,7 @@ import os
 
 from src.gui.styles.left_panel import subtab
 from src.gui.tabs.styles.subtab import main_layout, sub_layout,sub_explanations, status
-from src.core.tabs.locatormanager_action import LocatorManagerActionHandler
+from src.core.actions.locatormanager_action import LocatorManagerActionHandler
 
 class Sub1Tab2Button(QPushButton):
     def __init__(self, index, main_window, main_tab_id):

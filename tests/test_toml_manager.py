@@ -1,5 +1,5 @@
 import pytest
-from src.utils.toml_gui_manager import TomlManager
+from src.manager.toml_gui_manager import TomlManager
 
 @pytest.fixture
 def temp_toml_file(tmp_path):

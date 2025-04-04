@@ -8,7 +8,7 @@ from src.gui.styles.left_panel import subtab
 from src.gui.tabs.styles.subtab import main_layout, sub_layout, sub_explanations, status
 
 from src.gui.plot import MeasurementPlot
-from src.core.tabs.devmachine_action import RunDevMchnActionHandler
+from src.core.actions.devmachine_action import RunDevMchnActionHandler
 
 class Sub1Tab3Button(QPushButton):
     def __init__(self, index, main_window, main_tab_id):
